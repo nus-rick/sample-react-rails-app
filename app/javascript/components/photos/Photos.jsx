@@ -5,7 +5,10 @@ import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
-import { Link } from "react-router-dom";
+import Button from "@mui/material/Button"
+import { Link } from "react-router-dom"
+import { Alert, CardActions, IconButton } from '@mui/material'
+import { DeleteForever } from '@mui/icons-material'
 
 function Photos(props) {
   const [photos, setPhotos] = useState([])
@@ -15,23 +18,51 @@ function Photos(props) {
       .then(data => setPhotos(data))
   }, [])
 
-  const photoList = photos.map(photo => {
-    return (
-      <Grid item xs={4} key={photo.id}>
-        <Card >
-          <CardMedia
-            component="img"
-            image={photo.url}
-          />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              {photo.title}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-    )
-  })
+  const handleDelete = (id) => {
+    fetch(`/api/v1/photos/${id}`, {
+      method: 'DELETE'
+    })
+      .then(response => response.json())
+      .then(data => {
+        setPhotos(photos.filter(p => p.id !== data.id))
+      })
+  }
+
+  const photoList = () => {
+    if (photos.length > 0) {
+      return(
+        photos.map(photo => {
+          return (
+            <Grid item lg={2} xs={4} key={photo.id}>
+              <Card >
+                <CardMedia
+                  component="img"
+                  image={photo.url}
+                  height="194"
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {photo.title}
+                  </Typography>
+                </CardContent>
+                <CardActions disableSpacing>
+                  <IconButton color="error" component="span" onClick={() => handleDelete(photo.id)}>
+                    <DeleteForever />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            </Grid>
+          )
+        })
+      )
+    } else {
+      return (
+        <Grid item xs={12}>
+          <Alert severity='info'>No photos yet</Alert>
+        </Grid>
+      )
+    }
+  }
 
   return (
     <div>
@@ -39,11 +70,11 @@ function Photos(props) {
         <Grid container spacing={4}>
           <Grid container item spacing={4}>
             <Grid item xs={4}>
-              <Link to='/photos/new'>New photo</Link>
+              <Button component={Link} to="/photos/new" variant="contained">New photo</Button>
             </Grid>
           </Grid>
           <Grid container item spacing={4} sx={{marginTop: '1px'}}>
-            {photoList}
+            {photoList()}
           </Grid>
         </Grid>
       </Container>

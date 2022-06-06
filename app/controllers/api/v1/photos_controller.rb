@@ -10,14 +10,20 @@ class Api::V1::PhotosController < ApplicationController
     if @photo.save
       render 'show', status: :created
     else
-      render json: @photo.errors, status: :unprocessable_entity
+      render json: @photo.errors.full_messages, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    photo = Photo.find(params[:id])
+    photo.destroy
+
+    render json: {id: photo.id}, status: :ok
   end
 
   private
 
   def permitted_params
-    puts params
     params.require(:photo).permit(:title, :source)
   end
 end
