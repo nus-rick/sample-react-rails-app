@@ -22,7 +22,7 @@ function PhotoForm({handleSubmit, shouldReset, setShouldReset}) {
 
   return (
     <React.Fragment>
-      <h2>Create new photo</h2>
+      <h2>Upload new photo</h2>
       <form onSubmit={e => handleSubmit(e, title, file)}>
         <div style={{marginBottom: '1rem'}}>
           <TextField label="Title" name="title" onChange={e => setTitle(e.target.value)} value={title}/>
@@ -33,14 +33,14 @@ function PhotoForm({handleSubmit, shouldReset, setShouldReset}) {
               onChange={e => setFile(e.target.files[0])}
             />
             <Button variant="contained" component="span" color='info'>
-              Upload
+              Choose file
             </Button>
             {renderFileName()}
           </label>
         </div>
         <div style={{marginTop: '1rem'}}>
           <Button variant="contained" type="submit">
-            Create
+            Upload
           </Button>
         </div>
       </form>
