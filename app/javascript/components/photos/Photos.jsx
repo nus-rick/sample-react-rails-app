@@ -5,14 +5,16 @@ import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
-import Button from "@mui/material/Button"
-import { Link } from "react-router-dom"
-import { Alert, CardActions, IconButton, Snackbar } from '@mui/material'
+import { Alert, AlertTitle, CardActions, IconButton, Snackbar } from '@mui/material'
 import { DeleteForever } from '@mui/icons-material'
+import PhotoForm from './PhotoForm'
 
 function Photos(props) {
   const [photos, setPhotos] = useState([])
+  const [error, setError] = useState([])
+  const [shouldReset, setShouldReset] = useState(false)
   const [openSnackbar, setOpenSnackbar] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState("")
 
   useEffect(() => {
     fetch('/api/v1/photos')
@@ -28,7 +30,53 @@ function Photos(props) {
       .then(data => {
         setPhotos(photos.filter(p => p.id !== data.id))
         handleOpenSnackBar()
+        setSnackbarMessage('Deleted successfully!')
       })
+  }
+
+  const handleSubmit = (e, title, file) => {
+    e.preventDefault()
+
+    const formData = new FormData()
+    formData.append("photo[title]", title)
+    if(file) {
+      formData.append("photo[source]", file) 
+    }
+
+    const options = {
+      method: 'POST',
+      body: formData
+    }
+
+    fetch('/api/v1/photos', options)
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        }
+        return Promise.reject(response)
+      })
+      .then((data) => {
+        setPhotos([data, ...photos])
+        setSnackbarMessage("Photo created!")
+        setError([])
+        setShouldReset(true)
+        handleOpenSnackBar()
+      })
+      .catch(response => {
+        response.json().then((json) => {
+          setError(json)
+        })
+      })
+  }
+
+  const handleError = () => {
+    return error.map((message, i) => {
+      return(
+        <Alert severity="error" key={i}>
+          <AlertTitle>{message}</AlertTitle>
+        </Alert>
+      )
+    })
   }
 
   const handleOpenSnackBar = () => {
@@ -78,10 +126,12 @@ function Photos(props) {
   return (
     <div>
       <Container maxWidth="xl">
+        {error && handleError()}
         <Grid container spacing={4}>
           <Grid container item spacing={4}>
-            <Grid item xs={4}>
-              <Button component={Link} to="/photos/new" variant="contained">New photo</Button>
+            <Grid item xs={6}>
+              {/* <Button component={Link} to="/photos/new" variant="contained">New photo</Button> */}
+              <PhotoForm photos={photos} handleSubmit={handleSubmit} setShouldReset={setShouldReset} shouldReset={shouldReset} />
             </Grid>
           </Grid>
           <Grid container item spacing={4} sx={{marginTop: '1px'}}>
@@ -90,7 +140,7 @@ function Photos(props) {
         </Grid>
         <Snackbar open={openSnackbar} autoHideDuration={2000} onClose={handleCloseSnackBar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
           <Alert onClose={handleCloseSnackBar} severity="success" sx={{ width: '100%' }}>
-            Deleted successfully!
+            {snackbarMessage}
           </Alert>
         </Snackbar>
       </Container>
