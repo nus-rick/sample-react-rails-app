@@ -1,24 +1,21 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This is a demo photo galleries app using React + Ruby on Rails
 
-Things you may want to cover:
+## Introduction
+We can view the list of all photos, create new photo and delete the photo.  
 
-* Ruby version
+The app has some basic validations like requiring the photo's `title` and `source` field.  
 
-* System dependencies
+The FE was built using React and integrated with the Rails project.  
 
-* Configuration
 
-* Database creation
+## Ruby version
+3.0.3
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Setup
+```
+  rails db:setup
+  yarn install
+  rails s
+```

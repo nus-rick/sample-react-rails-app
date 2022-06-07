@@ -7,11 +7,13 @@ import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import Button from "@mui/material/Button"
 import { Link } from "react-router-dom"
-import { Alert, CardActions, IconButton } from '@mui/material'
+import { Alert, CardActions, IconButton, Snackbar } from '@mui/material'
 import { DeleteForever } from '@mui/icons-material'
 
 function Photos(props) {
   const [photos, setPhotos] = useState([])
+  const [openSnackbar, setOpenSnackbar] = useState(false)
+
   useEffect(() => {
     fetch('/api/v1/photos')
       .then(response => response.json())
@@ -25,7 +27,16 @@ function Photos(props) {
       .then(response => response.json())
       .then(data => {
         setPhotos(photos.filter(p => p.id !== data.id))
+        handleOpenSnackBar()
       })
+  }
+
+  const handleOpenSnackBar = () => {
+    setOpenSnackbar(true)
+  }
+
+  const handleCloseSnackBar = () => {
+    setOpenSnackbar(false)
   }
 
   const photoList = () => {
@@ -77,6 +88,11 @@ function Photos(props) {
             {photoList()}
           </Grid>
         </Grid>
+        <Snackbar open={openSnackbar} autoHideDuration={2000} onClose={handleCloseSnackBar} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+          <Alert onClose={handleCloseSnackBar} severity="success" sx={{ width: '100%' }}>
+            Deleted successfully!
+          </Alert>
+        </Snackbar>
       </Container>
     </div>
   )
