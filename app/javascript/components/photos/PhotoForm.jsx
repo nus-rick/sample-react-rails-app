@@ -14,7 +14,6 @@ function PhotoForm({handleSubmit, shouldReset, setShouldReset}) {
 
   useEffect(() => {
     if (shouldReset) {
-      console.log(23)
       setTitle("")
       setFile(null)
       setShouldReset(false)

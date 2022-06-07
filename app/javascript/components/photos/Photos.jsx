@@ -5,7 +5,7 @@ import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
-import { Alert, AlertTitle, CardActions, IconButton, Snackbar } from '@mui/material'
+import { Alert, AlertTitle, Button, CardActions, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, Snackbar } from '@mui/material'
 import { DeleteForever } from '@mui/icons-material'
 import PhotoForm from './PhotoForm'
 
@@ -13,6 +13,8 @@ function Photos(props) {
   const [photos, setPhotos] = useState([])
   const [error, setError] = useState([])
   const [shouldReset, setShouldReset] = useState(false)
+  const [shouldOpenDialog, setShouldOpenDialog] = useState(false)
+  const [photoIdWillDelete, setPhotoIdWillDelete] = useState(null)
   const [openSnackbar, setOpenSnackbar] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState("")
 
@@ -22,13 +24,15 @@ function Photos(props) {
       .then(data => setPhotos(data))
   }, [])
 
-  const handleDelete = (id) => {
-    fetch(`/api/v1/photos/${id}`, {
+  const handleDelete = () => {
+    fetch(`/api/v1/photos/${photoIdWillDelete}`, {
       method: 'DELETE'
     })
       .then(response => response.json())
       .then(data => {
         setPhotos(photos.filter(p => p.id !== data.id))
+        setPhotoIdWillDelete(null)
+        setShouldOpenDialog(false)
         handleOpenSnackBar()
         setSnackbarMessage('Deleted successfully!')
       })
@@ -87,6 +91,15 @@ function Photos(props) {
     setOpenSnackbar(false)
   }
 
+  const openDialog = (photoId) => {
+    setShouldOpenDialog(true)
+    setPhotoIdWillDelete(photoId)
+  }
+
+  const closeDialog = () => {
+    setShouldOpenDialog(false)
+  }
+
   const photoList = () => {
     if (photos.length > 0) {
       return(
@@ -105,7 +118,7 @@ function Photos(props) {
                   </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
-                  <IconButton color="error" component="span" onClick={() => handleDelete(photo.id)}>
+                  <IconButton color="error" component="span" onClick={() => openDialog(photo.id)}>
                     <DeleteForever />
                   </IconButton>
                 </CardActions>
@@ -143,6 +156,22 @@ function Photos(props) {
             {snackbarMessage}
           </Alert>
         </Snackbar>
+        <Dialog open={shouldOpenDialog} onClose={closeDialog}>
+          <DialogTitle>
+            Are you sure?
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              This will permanently delete the photo. Are you sure?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDelete} color='error'>Delete</Button>
+            <Button onClick={closeDialog} autoFocus>
+              Back
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
     </div>
   )
